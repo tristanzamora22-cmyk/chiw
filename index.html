@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHISPA — La energía que enciende tu día</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg: #0f0720;
+    --bg2: #1a0e33;
+    --bg3: #170a2e;
+    --magenta: #ff2e63;
+    --magenta-dim: #b8104a;
+    --yellow: #ffd23f;
+    --text: #f6f2ff;
+    --muted: #b3a3d6;
+    --card: #1c1036;
+    --radius: 18px;
+    --maxw: 1180px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Space Grotesk', sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{
+    font-family:'Anton', sans-serif;
+    font-weight:400;
+    letter-spacing:0.01em;
+    line-height:0.92;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 32px;}
+  img,svg{display:block;}
+  button{font-family:inherit; cursor:pointer; border:none;}
+
+  /* ===== NAV ===== */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    padding:20px 0;
+    transition:background .35s ease, padding .35s ease, box-shadow .35s ease;
+  }
+  header.scrolled{
+    background:rgba(15,7,32,0.86);
+    backdrop-filter:blur(10px);
+    padding:12px 0;
+    box-shadow:0 1px 0 rgba(255,255,255,0.06);
+  }
+  nav{display:flex; align-items:center; justify-content:space-between;}
+  .logo{display:flex; align-items:center; gap:8px; font-family:'Anton'; font-size:22px; letter-spacing:0.03em;}
+  .logo svg{width:22px; height:22px;}
+  .nav-links{display:flex; gap:36px; font-size:15px; font-weight:500;}
+  .nav-links a{opacity:0.82; transition:opacity .2s;}
+  .nav-links a:hover{opacity:1;}
+  .nav-cta{
+    background:var(--yellow); color:#1a0e33; font-weight:700; font-size:14px;
+    padding:10px 22px; border-radius:999px;
+  }
+  .nav-cta:hover{filter:brightness(1.06);}
+  .hamburger{
+    display:none; flex-direction:column; justify-content:center; gap:5px;
+    width:38px; height:38px; background:none; border:none;
+  }
+  .hamburger span{width:22px; height:2px; background:var(--text); border-radius:2px; transition:transform .25s ease, opacity .25s ease;}
+  .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .hamburger.open span:nth-child(2){opacity:0;}
+  .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  .mobile-menu{
+    display:flex; flex-direction:column; gap:2px;
+    max-height:0; overflow:hidden; background:rgba(15,7,32,0.98);
+    transition:max-height .35s ease;
+  }
+  .mobile-menu.open{max-height:400px;}
+  .mobile-menu a{
+    padding:16px 32px; font-size:16px; font-weight:500; color:var(--text);
+    border-top:1px solid rgba(255,255,255,0.06);
+  }
+  .mobile-menu a.nav-cta{
+    margin:14px 32px 20px; padding:14px 22px; text-align:center; border-top:none;
+  }
+  @media (max-width:820px){
+    .nav-links, nav > .nav-cta{display:none;}
+    .hamburger{display:flex;}
+  }
+  @media (min-width:821px){ .mobile-menu{display:none;} }
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    display:flex; align-items:center;
+    padding-top:120px; padding-bottom:80px;
+    background:
+      radial-gradient(60% 50% at 82% 18%, rgba(255,46,99,0.35), transparent 60%),
+      radial-gradient(55% 45% at 12% 85%, rgba(255,210,63,0.14), transparent 60%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 60%, var(--bg) 100%);
+    overflow:hidden;
+  }
+  #spark-canvas{position:absolute; inset:0; width:100%; height:100%; z-index:1; opacity:0.85;}
+  .hero-grid{
+    position:relative; z-index:2;
+    display:grid; grid-template-columns:1.1fr 0.9fr; gap:40px; align-items:center;
+  }
+  @media (max-width:900px){ .hero-grid{grid-template-columns:1fr;} }
+
+  .eyebrow-pill{
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(255,210,63,0.12); border:1px solid rgba(255,210,63,0.35);
+    color:var(--yellow); font-size:13px; font-weight:600;
+    padding:7px 14px; border-radius:999px; margin-bottom:22px;
+  }
+  .eyebrow-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--yellow);}
+
+  .hero h1{
+    font-size:clamp(56px, 9vw, 108px);
+    color:var(--text);
+  }
+  .hero h1 .word-chispa{
+    color:var(--yellow);
+    -webkit-text-stroke:2px var(--magenta);
+  }
+  .hero p.sub{
+    margin-top:24px; max-width:46ch;
+    font-size:19px; color:var(--muted); line-height:1.55;
+  }
+  .hero-ctas{display:flex; gap:16px; margin-top:36px; flex-wrap:wrap;}
+  .btn-primary{
+    position:relative;
+    background:var(--magenta); color:white; font-weight:700; font-size:16px;
+    padding:17px 34px; border-radius:999px;
+    box-shadow:0 0 0 0 rgba(255,46,99,0.55);
+    animation:pulse 2.4s ease-out infinite;
+    transition:transform .15s ease;
+  }
+  .btn-primary:hover{transform:translateY(-2px);}
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(255,46,99,0.55); }
+    70%{ box-shadow:0 0 0 16px rgba(255,46,99,0); }
+    100%{ box-shadow:0 0 0 0 rgba(255,46,99,0); }
+  }
+  .btn-ghost{
+    border:1.5px solid rgba(246,242,255,0.3); color:var(--text); font-weight:600; font-size:16px;
+    padding:16px 30px; border-radius:999px; transition:border-color .2s, background .2s;
+  }
+  .btn-ghost:hover{border-color:rgba(246,242,255,0.7); background:rgba(255,255,255,0.04);}
+
+  .hero-trust{display:flex; gap:22px; margin-top:34px; flex-wrap:wrap;}
+  .hero-trust div{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--muted);}
+  .hero-trust svg{width:18px; height:18px; flex-shrink:0;}
+
+  /* Can graphic */
+  .can-stage{position:relative; display:flex; justify-content:center; align-items:center; height:520px;}
+  .can-glow{
+    position:absolute; width:340px; height:340px; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,210,63,0.35), rgba(255,46,99,0.18) 55%, transparent 72%);
+    filter:blur(10px);
+  }
+  .can{
+    position:relative; width:180px; height:420px;
+    animation:float 5s ease-in-out infinite;
+  }
+  @keyframes float{
+    0%,100%{ transform:translateY(0) rotate(-3deg); }
+    50%{ transform:translateY(-18px) rotate(3deg); }
+  }
+  .can-body{
+    width:100%; height:100%; border-radius:26px;
+    background:linear-gradient(120deg, #2a1350 0%, #170a2e 45%, #0e0620 100%);
+    border:1px solid rgba(255,255,255,0.08);
+    box-shadow:
+      inset -14px 0 30px rgba(0,0,0,0.5),
+      inset 10px 0 24px rgba(255,255,255,0.05),
+      0 30px 60px rgba(0,0,0,0.55);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    position:relative; overflow:hidden;
+  }
+  .can-body::before{
+    content:''; position:absolute; top:0; bottom:0; left:14%;
+    width:22%; background:linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02));
+    filter:blur(4px); border-radius:50%;
+  }
+  .can-band{
+    position:absolute; left:0; right:0; top:38%; height:24%;
+    background:linear-gradient(90deg, var(--magenta), #ff5c8a 40%, var(--yellow) 100%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .can-band svg{width:52px; height:52px;}
+  .can-label{
+    position:absolute; bottom:14%; font-family:'Anton'; font-size:15px; letter-spacing:0.06em; color:var(--muted);
+  }
+  .can-top, .can-bottom{
+    position:absolute; left:0; right:0; height:18px; background:#0b0518; border-radius:10px 10px 0 0;
+  }
+  .can-top{top:-4px;}
+  .can-bottom{bottom:-4px; border-radius:0 0 10px 10px;}
+
+  /* ===== TICKER ===== */
+  .ticker-outer{
+    background:var(--yellow); color:#1a0e33; overflow:hidden; padding:13px 0;
+    transform:rotate(-1.2deg); margin:-14px 0 40px 0; position:relative; z-index:3;
+  }
+  .ticker-track{display:flex; gap:40px; white-space:nowrap; animation:scroll-left 22s linear infinite; width:max-content;}
+  .ticker-track span{font-weight:700; font-size:15px; display:flex; align-items:center; gap:12px;}
+  @keyframes scroll-left{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  @media (prefers-reduced-motion: reduce){
+    .ticker-track, .btn-primary, .can, .energy-can, .energy-glow,
+    .plan-badge, .sticky-bar.show, .plan-card.just-picked, .plan-card:hover::before{animation:none !important;}
+  }
+
+  /* ===== SECTION SHARED ===== */
+  section{padding:100px 0;}
+  .section-head{max-width:620px; margin-bottom:56px;}
+  .section-head .kicker{color:var(--magenta); font-weight:700; font-size:14px; margin-bottom:10px; display:block;}
+  .section-head h2{font-size:clamp(34px,4.4vw,52px); color:var(--text);}
+  .section-head p{margin-top:16px; color:var(--muted); font-size:17px; line-height:1.6;}
+
+  /* ===== BENEFITS ===== */
+  .benefits{background:var(--bg2);}
+  .benefit-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:22px;}
+  @media (max-width:900px){ .benefit-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .benefit-grid{grid-template-columns:1fr;} }
+  .benefit-card{
+    background:var(--card); border:1px solid rgba(255,255,255,0.06); border-radius:var(--radius);
+    padding:30px 24px; transition:transform .25s ease, border-color .25s ease;
+  }
+  .benefit-card:hover{transform:translateY(-6px); border-color:rgba(255,46,99,0.4);}
+  .benefit-card.reveal{transition:opacity .6s ease, transform .3s ease, border-color .3s ease;}
+  .benefit-card .icon{
+    width:46px; height:46px; border-radius:12px; background:rgba(255,210,63,0.14);
+    display:flex; align-items:center; justify-content:center; margin-bottom:18px;
+  }
+  .benefit-card .icon svg{width:24px; height:24px;}
+  .benefit-card h3{font-size:19px; margin-bottom:8px;}
+  .benefit-card p{color:var(--muted); font-size:14.5px; line-height:1.55;}
+
+  /* ===== STATS BAR ===== */
+  .stats{
+    background:linear-gradient(90deg, var(--magenta-dim), var(--magenta));
+    padding:56px 0;
+  }
+  .stats-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px; text-align:center;}
+  @media (max-width:700px){ .stats-grid{grid-template-columns:repeat(2,1fr);} }
+  .stat-num{font-family:'Anton'; font-size:clamp(34px,4.5vw,52px); color:var(--yellow);}
+  .stat-label{font-size:13.5px; color:rgba(255,255,255,0.85); margin-top:4px; font-weight:500;}
+
+  /* ===== FLAVORS ===== */
+  .flavor-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:22px;}
+  @media (max-width:900px){ .flavor-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .flavor-grid{grid-template-columns:1fr;} }
+  .flavor-card{
+    border-radius:var(--radius); padding:26px; min-height:280px;
+    display:flex; flex-direction:column; justify-content:flex-end;
+    position:relative; overflow:hidden; border:1px solid rgba(255,255,255,0.08);
+    transition:transform .25s ease, border-color .25s ease;
+  }
+  .flavor-card:hover{transform:scale(1.03); border-color:rgba(255,255,255,0.22);}
+  .flavor-card.reveal{transition:opacity .6s ease, transform .3s ease, border-color .3s ease;}
+  .flavor-card .puck{
+    position:absolute; top:24px; right:24px; width:60px; height:60px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:26px;
+    transition:opacity .3s ease, transform .3s ease;
+  }
+  .flavor-card:hover .puck{ opacity:0; transform:scale(0.6) translateY(-8px); }
+  .flavor-card h4{font-family:'Anton'; font-size:24px; margin-bottom:4px; position:relative; z-index:2; transition:transform .35s ease;}
+  .flavor-card span{font-size:13.5px; opacity:0.85; position:relative; z-index:2; display:block; transition:opacity .3s ease;}
+  .flavor-card:hover h4{transform:translateY(-4px);}
+  .f1{background:linear-gradient(160deg,#3a1750,#170a2e 70%);}
+  .f1 .puck{background:#ffd23f; color:#1a0e33;}
+  .f2{background:linear-gradient(160deg,#4a0f2e,#170a2e 70%);}
+  .f2 .puck{background:#ff2e63; color:white;}
+  .f3{background:linear-gradient(160deg,#0f3d3a,#170a2e 70%);}
+  .f3 .puck{background:#3fffd2; color:#0e2620;}
+  .f4{background:linear-gradient(160deg,#402a10,#170a2e 70%);}
+  .f4 .puck{background:#ff8a3f; color:#2a1300;}
+
+  /* Flavor can reveal on hover */
+  .flavor-can{
+    position:absolute; right:-6px; bottom:-18px; width:82px; height:190px;
+    z-index:1; opacity:0; pointer-events:none;
+    transform:translateY(36px) rotate(-10deg) scale(0.82);
+    transition:opacity .4s ease, transform .45s cubic-bezier(.22,.85,.3,1.2);
+  }
+  .flavor-card:hover .flavor-can, .flavor-card.touch-active .flavor-can{
+    opacity:1; transform:translateY(0) rotate(-5deg) scale(1);
+  }
+  .flavor-card.touch-active .puck{ opacity:0; transform:scale(0.6) translateY(-8px); }
+  .flavor-card.touch-active h4{transform:translateY(-4px);}
+  .flavor-can-glow{
+    position:absolute; inset:-30px; border-radius:50%;
+    filter:blur(18px); opacity:0.55;
+  }
+  .fc-body{
+    position:relative; width:100%; height:100%; border-radius:16px;
+    background:linear-gradient(120deg, #241040 0%, #150a29 55%, #0c0518 100%);
+    border:1px solid rgba(255,255,255,0.1);
+    box-shadow:
+      inset -8px 0 16px rgba(0,0,0,0.5),
+      inset 6px 0 14px rgba(255,255,255,0.06),
+      0 18px 30px rgba(0,0,0,0.5);
+    overflow:hidden;
+  }
+  .fc-body::before{
+    content:''; position:absolute; top:0; bottom:0; left:12%; width:18%;
+    background:linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.02));
+    filter:blur(3px);
+  }
+  .fc-band{
+    position:absolute; left:0; right:0; top:36%; height:26%;
+  }
+  .fc-top, .fc-bottom{
+    position:absolute; left:0; right:0; height:9px; background:#0a0616;
+  }
+  .fc-top{top:-2px; border-radius:6px 6px 0 0;}
+  .fc-bottom{bottom:-2px; border-radius:0 0 6px 6px;}
+  .f1 .flavor-can-glow{background:radial-gradient(circle, rgba(255,210,63,0.65), transparent 70%);}
+  .f1 .fc-band{background:linear-gradient(90deg,#ffd23f,#ffb23f);}
+  .f2 .flavor-can-glow{background:radial-gradient(circle, rgba(255,46,99,0.65), transparent 70%);}
+  .f2 .fc-band{background:linear-gradient(90deg,#ff2e63,#ff6a8f);}
+  .f3 .flavor-can-glow{background:radial-gradient(circle, rgba(63,255,210,0.65), transparent 70%);}
+  .f3 .fc-band{background:linear-gradient(90deg,#3fffd2,#7dffe0);}
+  .f4 .flavor-can-glow{background:radial-gradient(circle, rgba(255,138,63,0.65), transparent 70%);}
+  .f4 .fc-band{background:linear-gradient(90deg,#ff8a3f,#ffb46a);}
+
+  /* ===== ENERGY METER (scroll reveal, single orchestrated moment) ===== */
+  .energy{background:var(--bg2);}
+  .energy-inner{display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;}
+  @media (max-width:860px){ .energy-inner{grid-template-columns:1fr;} }
+  .energy-can{animation:bolt-float 3.4s ease-in-out infinite;}
+  @keyframes bolt-float{
+    0%,100%{ transform:translateY(0) rotate(-2deg); }
+    50%{ transform:translateY(-14px) rotate(2deg); }
+  }
+  .energy-glow{animation:glow-pulse 3.4s ease-in-out infinite;}
+  @keyframes glow-pulse{
+    0%,100%{ opacity:0.7; transform:scale(1); }
+    50%{ opacity:1; transform:scale(1.08); }
+  }
+  .meter{margin-top:30px;}
+  .meter-row{margin-bottom:22px;}
+  .meter-row .label{display:flex; justify-content:space-between; font-size:14px; color:var(--muted); margin-bottom:8px;}
+  .meter-track{height:10px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden;}
+  .meter-fill{height:100%; border-radius:999px; width:0%; background:linear-gradient(90deg,var(--magenta),var(--yellow)); transition:width 1.4s cubic-bezier(.2,.8,.2,1);}
+  .meter-fill.filled{ }
+
+  /* ===== TESTIMONIALS ===== */
+  .testimonial-scroll-wrap{position:relative;}
+  .testimonial-arrows{display:flex; gap:10px; position:absolute; top:-84px; right:32px;}
+  @media (max-width:900px){ .testimonial-arrows{position:static; margin-bottom:20px; justify-content:flex-end;} }
+  .arrow-btn{
+    width:44px; height:44px; border-radius:50%; background:var(--card);
+    border:1px solid rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center;
+    transition:background .2s, border-color .2s, transform .15s;
+  }
+  .arrow-btn:hover{background:rgba(255,46,99,0.15); border-color:var(--magenta); transform:translateY(-2px);}
+  .arrow-btn svg{width:18px; height:18px;}
+  .testimonial-scroll{
+    display:flex; gap:22px; overflow-x:auto; scroll-snap-type:x mandatory;
+    padding:4px 4px 18px; margin:0 -4px;
+    scrollbar-width:none; -ms-overflow-style:none; cursor:grab;
+  }
+  .testimonial-scroll::-webkit-scrollbar{display:none;}
+  .testimonial-scroll:active{cursor:grabbing;}
+  .testimonial{
+    flex:0 0 320px; scroll-snap-align:start;
+    background:var(--card); border-radius:var(--radius); padding:28px; border:1px solid rgba(255,255,255,0.06);
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .testimonial:hover{transform:translateY(-6px); border-color:rgba(255,46,99,0.35); box-shadow:0 16px 30px rgba(0,0,0,0.3);}
+  .testimonial.reveal{transition:opacity .6s ease, transform .3s ease, box-shadow .3s ease, border-color .3s ease;}
+  @media (max-width:560px){ .testimonial{flex-basis:78vw;} }
+  .stars{color:var(--yellow); font-size:15px; margin-bottom:14px; letter-spacing:2px;}
+  .testimonial p{color:var(--text); font-size:15px; line-height:1.6; margin-bottom:18px;}
+  .testimonial .who{display:flex; align-items:center; gap:10px;}
+  .avatar{width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Anton'; font-size:14px; color:#1a0e33;}
+  .who-name{font-size:14px; font-weight:600;}
+  .who-role{font-size:12.5px; color:var(--muted);}
+
+  /* ===== FINAL CTA ===== */
+  .final-cta{
+    position:relative; overflow:hidden;
+    background:
+      radial-gradient(60% 90% at 50% 0%, rgba(255,46,99,0.4), transparent 60%),
+      linear-gradient(180deg, var(--bg2), var(--bg));
+    text-align:center;
+  }
+  .final-cta h2{font-size:clamp(38px,6vw,68px); max-width:16ch; margin:0 auto;}
+  .final-cta p.sub{color:var(--muted); font-size:18px; margin:20px auto 10px; max-width:50ch;}
+  .offer-box{
+    display:inline-flex; align-items:center; gap:14px; margin-top:34px;
+    background:rgba(255,210,63,0.1); border:1px solid rgba(255,210,63,0.4);
+    padding:14px 22px; border-radius:999px; font-size:14px; color:var(--yellow); font-weight:600;
+    flex-wrap:wrap; justify-content:center; row-gap:6px;
+  }
+  .cta-buttons{display:flex; gap:16px; justify-content:center; margin-top:34px; flex-wrap:wrap;}
+  .guarantee{margin-top:26px; color:var(--muted); font-size:13.5px;}
+
+  /* Checkout */
+  .checkout-box{
+    max-width:420px; margin:34px auto 0; background:var(--card); border:1px solid rgba(255,255,255,0.1);
+    border-radius:var(--radius); padding:26px; text-align:left;
+  }
+  .checkout-plan-row{
+    display:flex; justify-content:space-between; align-items:center; font-size:14px;
+    color:var(--muted); margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .checkout-plan-row strong{color:var(--yellow); font-size:15px;}
+  .checkout-fields{display:flex; flex-direction:column; gap:10px; margin-bottom:14px;}
+  .checkout-fields input{
+    width:100%; background:var(--bg2); border:1px solid rgba(255,255,255,0.1); color:var(--text);
+    padding:13px 15px; border-radius:10px; font-size:14.5px; font-family:inherit;
+  }
+  .checkout-fields input:focus{outline:2px solid var(--magenta); outline-offset:1px;}
+  #checkoutBtn{width:100%; animation:none;}
+  .checkout-note{color:var(--muted); font-size:12px; line-height:1.5; margin-top:12px;}
+  .checkout-msg{font-size:14px; font-weight:600; margin-top:12px; min-height:20px;}
+  .checkout-msg.success{color:var(--yellow);}
+  .checkout-msg.error{color:var(--magenta);}
+  .footer-admin-link{
+    display:inline-block; margin-top:14px; color:var(--muted); font-size:12px; text-decoration:underline;
+    opacity:0.6;
+  }
+  .footer-admin-link:hover{opacity:1;}
+
+  /* ===== FOOTER ===== */
+  footer{padding:50px 0 34px; border-top:1px solid rgba(255,255,255,0.06);}
+  .footer-grid{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;}
+  .footer-links{display:flex; gap:26px; font-size:14px; color:var(--muted);}
+  .footer-links a:hover{color:var(--text);}
+  .footer-note{font-size:13px; color:var(--muted); margin-top:24px; line-height:1.6;}
+
+  /* ===== PRICING PLANS ===== */
+  .plan-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  @media (max-width:900px){ .plan-grid{grid-template-columns:1fr; max-width:420px; margin:0 auto;} }
+  .plan-grid .plan-card:nth-child(1){transition-delay:0s;}
+  .plan-grid .plan-card:nth-child(2){transition-delay:0.12s;}
+  .plan-grid .plan-card:nth-child(3){transition-delay:0.24s;}
+  .plan-card{
+    position:relative; display:block; cursor:pointer;
+    background:var(--card); border:2px solid rgba(255,255,255,0.08); border-radius:var(--radius);
+    padding:30px 26px;
+    transition:border-color .3s ease, transform .3s cubic-bezier(.22,.85,.3,1.2), box-shadow .3s ease,
+               opacity .6s ease, translate .6s ease;
+  }
+  .plan-card::before{
+    content:''; position:absolute; inset:0; border-radius:inherit; padding:2px;
+    background:linear-gradient(120deg, var(--magenta), var(--yellow), var(--magenta));
+    background-size:220% 220%;
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+    opacity:0; transition:opacity .3s ease;
+    pointer-events:none;
+  }
+  .plan-card:hover{transform:translateY(-8px) scale(1.015); box-shadow:0 22px 40px rgba(0,0,0,0.35);}
+  .plan-card:hover::before{opacity:1; animation:borderFlow 3s linear infinite;}
+  @keyframes borderFlow{ 0%{background-position:0% 50%;} 100%{background-position:200% 50%;} }
+  .plan-card input{position:absolute; opacity:0; pointer-events:none;}
+  .plan-card:has(input:checked){
+    border-color:var(--magenta);
+    background:linear-gradient(160deg, rgba(255,46,99,0.1), var(--card) 55%);
+    box-shadow:0 0 0 4px rgba(255,46,99,0.12);
+  }
+  .plan-card.popular{border-color:rgba(255,210,63,0.5);}
+  .plan-card.popular:has(input:checked){border-color:var(--yellow); box-shadow:0 0 0 4px rgba(255,210,63,0.14);}
+  .plan-card.just-picked{animation:plan-pop .45s cubic-bezier(.34,1.56,.64,1);}
+  .plan-card.reveal{transition:opacity .6s ease, transform .3s cubic-bezier(.22,.85,.3,1.2), border-color .3s ease, box-shadow .3s ease;}
+  @keyframes plan-pop{
+    0%{transform:scale(1);}
+    45%{transform:scale(1.045);}
+    100%{transform:scale(1);}
+  }
+  .plan-select-badge{
+    position:absolute; top:18px; right:18px; width:26px; height:26px; border-radius:50%;
+    background:var(--magenta); color:white; display:flex; align-items:center; justify-content:center;
+    font-size:14px; opacity:0; transform:scale(0.4) rotate(-45deg);
+    transition:opacity .3s ease, transform .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .plan-card:has(input:checked) .plan-select-badge{opacity:1; transform:scale(1) rotate(0deg);}
+  .plan-badge{
+    position:absolute; top:-13px; left:26px; background:var(--yellow); color:#1a0e33;
+    font-size:12px; font-weight:700; padding:5px 12px; border-radius:999px;
+    animation:badge-glow 2.4s ease-in-out 4;
+  }
+  @keyframes badge-glow{
+    0%,100%{ box-shadow:0 0 0 0 rgba(255,210,63,0.55); }
+    50%{ box-shadow:0 0 0 7px rgba(255,210,63,0); }
+  }
+  .plan-top h3{font-size:20px; margin-bottom:6px;}
+  .plan-desc{color:var(--muted); font-size:14px; line-height:1.5; min-height:42px;}
+  .plan-price{font-family:'Anton'; font-size:36px; color:var(--yellow); margin:18px 0 16px; transition:transform .3s ease;}
+  .plan-card:has(input:checked) .plan-price{transform:scale(1.06); transform-origin:left center;}
+  .plan-price span{font-family:'Space Grotesk'; font-size:13px; font-weight:600; color:var(--muted); margin-left:6px;}
+  .plan-features{list-style:none; display:flex; flex-direction:column; gap:10px;}
+  .plan-features li{font-size:14px; color:var(--muted); padding-left:22px; position:relative; transition:color .2s ease;}
+  .plan-features li::before{content:'✓'; position:absolute; left:0; color:var(--magenta); font-weight:700; transition:transform .2s ease;}
+  .plan-card:hover .plan-features li::before{transform:scale(1.15);}
+  .plan-choose-btn{
+    display:block; text-align:center; margin-top:22px; padding:12px; border-radius:10px;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+    color:var(--text); font-weight:600; font-size:14px; transition:background .2s ease, border-color .2s ease;
+  }
+  .plan-choose-btn:hover{background:var(--magenta); border-color:var(--magenta);}
+  .plan-card.popular .plan-choose-btn{background:var(--yellow); color:#1a0e33; border-color:var(--yellow);}
+  .plan-card.popular .plan-choose-btn:hover{filter:brightness(1.08);}
+
+  /* ===== FAQ ===== */
+  .faq-list{max-width:760px;}
+  .faq-item{border-bottom:1px solid rgba(255,255,255,0.1);}
+  .faq-q{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:16px;
+    background:none; color:var(--text); font-family:inherit; font-size:17px; font-weight:600;
+    padding:22px 4px; text-align:left;
+  }
+  .faq-icon{font-size:22px; color:var(--magenta); transition:transform .25s ease; flex-shrink:0;}
+  .faq-item.open .faq-icon{transform:rotate(45deg);}
+  .faq-a{
+    max-height:0; overflow:hidden; transition:max-height .3s ease, padding .3s ease;
+    padding:0 4px;
+  }
+  .faq-item.open .faq-a{max-height:200px; padding-bottom:22px;}
+  .faq-a p{color:var(--muted); font-size:15px; line-height:1.6; max-width:64ch;}
+
+  /* Countdown inside offer box */
+  .countdown{
+    font-family:'Anton'; font-size:16px; letter-spacing:0.04em; color:var(--text);
+    background:rgba(0,0,0,0.25); padding:4px 10px; border-radius:8px;
+  }
+
+  /* ===== STICKY MOBILE BAR ===== */
+  .sticky-bar{
+    position:fixed; left:0; right:0; bottom:0; z-index:90;
+    background:rgba(15,7,32,0.94); backdrop-filter:blur(10px);
+    border-top:1px solid rgba(255,255,255,0.1);
+    transform:translateY(120%); transition:transform .35s ease;
+  }
+  .sticky-bar.show{transform:translateY(0); animation:bar-arrive 1.8s ease-out 2;}
+  @keyframes bar-arrive{
+    0%,100%{ box-shadow:none; }
+    50%{ box-shadow:0 -8px 24px rgba(255,46,99,0.35); }
+  }
+  .sticky-bar-inner{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:14px 32px;
+  }
+  .sticky-bar-text{font-size:14px; color:var(--muted);}
+  .sticky-bar-text strong{color:var(--yellow);}
+  .btn-primary.small{padding:11px 22px; font-size:14px; animation:none; box-shadow:none; white-space:nowrap;}
+  @media (max-width:480px){ .sticky-bar-text{font-size:12.5px;} .sticky-bar-inner{padding:12px 18px;} }
+
+  .reveal{opacity:0; transform:translateY(22px); transition:opacity .6s ease, transform .6s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ===== CHECKOUT (separate order page) ===== */
+  #checkoutView{ min-height:100vh; background:radial-gradient(60% 45% at 50% 0%, rgba(255,46,99,0.16), transparent 60%), var(--bg); }
+  .co-wrap{ max-width:520px; margin:0 auto; padding:60px 24px 80px; }
+  .co-back{ display:inline-flex; align-items:center; gap:6px; color:var(--muted); font-size:14px; margin-bottom:28px; }
+  .co-back:hover{ color:var(--text); }
+  .co-card{ background:var(--card); border:1px solid rgba(255,255,255,0.1); border-radius:22px; padding:36px 32px; }
+  .co-logo{ display:flex; align-items:center; gap:8px; font-family:'Anton'; font-size:19px; margin-bottom:22px; }
+  .co-title{ font-size:32px; margin-bottom:8px; }
+  .co-sub{ color:var(--muted); font-size:15px; margin-bottom:28px; }
+  .co-plans{ display:flex; flex-direction:column; gap:10px; margin-bottom:26px; }
+  .co-plan-option{
+    display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:14px;
+    border:2px solid rgba(255,255,255,0.1); cursor:pointer; transition:border-color .2s ease, background .2s ease;
+    position:relative;
+  }
+  .co-plan-option input{ position:absolute; opacity:0; pointer-events:none; }
+  .co-plan-option:has(input:checked){ border-color:var(--magenta); background:rgba(255,46,99,0.08); }
+  .co-plan-option.popular{ border-color:rgba(255,210,63,0.35); }
+  .co-plan-option.popular:has(input:checked){ border-color:var(--yellow); background:rgba(255,210,63,0.08); }
+  .co-plan-info{ flex:1; display:flex; flex-direction:column; gap:2px; }
+  .co-plan-info strong{ font-size:15px; }
+  .co-plan-info span{ font-size:12.5px; color:var(--muted); }
+  .co-plan-price{ font-family:'Anton'; font-size:19px; color:var(--yellow); }
+  .co-fields{ display:flex; flex-direction:column; gap:6px; margin-bottom:20px; }
+  .co-fields-group-title{ font-size:12.5px; font-weight:700; letter-spacing:0.04em; color:var(--yellow); text-transform:uppercase; margin-bottom:4px; }
+  .co-fields-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .co-field-hint{ font-size:12px; color:var(--yellow); margin:2px 0 4px; min-height:0; }
+  .co-field-hint:empty{ display:none; }
+  .co-field-hint button{
+    background:none; border:none; color:var(--yellow); text-decoration:underline; font-size:12px;
+    cursor:pointer; font-family:inherit; padding:0;
+  }
+  .co-field-label{ font-size:13px; color:var(--muted); margin-top:10px; margin-bottom:2px; }
+  .co-fields input{
+    width:100%; background:var(--bg2); border:1px solid rgba(255,255,255,0.1); color:var(--text);
+    padding:13px 15px; border-radius:10px; font-size:14.5px; font-family:inherit;
+  }
+  .co-fields input:focus{ outline:2px solid var(--magenta); outline-offset:1px; }
+  .co-confirm-btn{ width:100%; animation:none; }
+  .co-note{ color:var(--muted); font-size:12px; line-height:1.5; margin-top:14px; }
+  .co-msg{ font-size:14px; font-weight:600; margin-top:12px; min-height:20px; }
+  .co-msg.success{ color:var(--yellow); }
+  .co-msg.error{ color:var(--magenta); }
+  .co-success{ text-align:center; padding:20px 0; }
+  .co-success .co-check{
+    width:56px; height:56px; border-radius:50%; background:rgba(255,210,63,0.14); color:var(--yellow);
+    display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 18px;
+  }
+  .co-success h2{ font-size:24px; margin-bottom:8px; }
+  .co-success p{ color:var(--muted); font-size:14.5px; line-height:1.6; margin-bottom:22px; }
+  .co-success .co-code{ font-family:'Anton'; font-size:22px; color:var(--yellow); margin-bottom:22px; }
+
+  /* ===== PANEL (internal, gated view) ===== */
+  #panelView{ font-family:'Space Grotesk',sans-serif; }
+  #panelView .p-login{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+    background:radial-gradient(60% 50% at 50% 0%, rgba(255,46,99,0.14), transparent 60%), var(--bg);
+  }
+  .p-login-card{width:100%; max-width:380px; background:#17141f; border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:38px 34px;}
+  .p-login-card.shake{animation:p-shake .4s ease;}
+  @keyframes p-shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
+  .p-login-logo{display:flex; align-items:center; gap:8px; font-family:'Anton'; font-size:24px; margin-bottom:4px;}
+  .p-login-tag{color:var(--muted); font-size:13.5px; margin-bottom:28px;}
+  .p-field-label{font-size:13px; color:var(--muted); margin-bottom:8px; display:block;}
+  #p-passwordInput{
+    width:100%; background:#1d1929; border:1px solid rgba(255,255,255,0.08); color:var(--text);
+    padding:13px 16px; border-radius:10px; font-size:15px; margin-bottom:6px; font-family:inherit;
+  }
+  #p-passwordInput:focus{outline:2px solid var(--magenta); outline-offset:1px;}
+  .p-login-error{color:var(--magenta); font-size:13px; min-height:18px; margin-bottom:14px;}
+  #p-loginBtn{width:100%; background:var(--magenta); color:white; font-weight:700; font-size:15px; padding:13px; border-radius:10px; margin-top:8px;}
+  #p-loginBtn:hover{filter:brightness(1.07);}
+  .p-login-note{color:var(--muted); font-size:12px; margin-top:22px; line-height:1.6; border-top:1px solid rgba(255,255,255,0.08); padding-top:16px;}
+
+  #p-dashboard{display:none;}
+  #p-dashboard.visible{display:block;}
+  .p-topbar{
+    display:flex; align-items:center; justify-content:space-between; padding:18px 32px;
+    border-bottom:1px solid rgba(255,255,255,0.08); background:#17141f;
+    position:sticky; top:0; z-index:20; flex-wrap:wrap; gap:12px;
+  }
+  .p-topbar-brand{display:flex; align-items:center; gap:10px;}
+  .p-topbar-brand .p-wordmark{font-family:'Anton'; font-size:19px;}
+  .p-topbar-brand .p-divider{width:1px; height:18px; background:rgba(255,255,255,0.08);}
+  .p-topbar-brand .p-subtitle{color:var(--muted); font-size:14px;}
+  #p-logoutBtn, #p-backBtn{
+    background:#1d1929; border:1px solid rgba(255,255,255,0.08); color:var(--text);
+    padding:9px 16px; border-radius:9px; font-size:13.5px; font-weight:500;
+  }
+  #p-logoutBtn:hover, #p-backBtn:hover{border-color:rgba(255,255,255,0.25);}
+  .p-main{max-width:1240px; margin:0 auto; padding:32px;}
+  .p-main section{margin-bottom:40px;}
+  .p-section-title{font-size:15px; font-weight:600; margin-bottom:16px;}
+  .p-kpi-row{display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:16px;}
+  @media (max-width:900px){ .p-kpi-row{grid-template-columns:1fr 1fr;} }
+  @media (max-width:520px){ .p-kpi-row{grid-template-columns:1fr;} }
+  .p-kpi-hero{
+    background:linear-gradient(150deg, rgba(255,46,99,0.14), #17141f 60%); border:1px solid rgba(255,46,99,0.25);
+    border-radius:18px; padding:26px 26px 18px; display:flex; flex-direction:column; justify-content:space-between; min-height:150px;
+  }
+  .p-kpi-hero .p-kpi-label{color:var(--muted); font-size:13.5px;}
+  .p-kpi-hero .p-kpi-value{font-family:'Anton'; font-size:44px; margin:8px 0 2px; line-height:1;}
+  .p-kpi-hero .p-kpi-sub{color:#3ddc97; font-size:13px; font-weight:600;}
+  .p-spark-wrap{position:relative; width:100%; height:44px; margin-top:10px;}
+  #p-heroSparkline{width:100%; height:100%; display:block;}
+  .p-kpi-tile{background:#17141f; border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:22px 24px; display:flex; flex-direction:column; justify-content:center; gap:8px;}
+  .p-kpi-tile .p-kpi-label{color:var(--muted); font-size:13.5px;}
+  .p-kpi-tile .p-kpi-value{font-family:'Anton'; font-size:30px;}
+  .p-kpi-tile.warn .p-kpi-value{color:var(--yellow);}
+  .p-charts-row{display:grid; grid-template-columns:1.4fr 1fr; gap:20px;}
+  @media (max-width:900px){ .p-charts-row{grid-template-columns:1fr;} }
+  .p-panel-box{background:#17141f; border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:24px;}
+  .p-panel-box .p-section-title{margin-bottom:6px;}
+  .p-panel-sub{color:var(--muted); font-size:13px; margin-bottom:18px;}
+  .p-chart-wrap{height:260px; position:relative;}
+  .p-flavor-bars{display:flex; flex-direction:column; gap:16px;}
+  .p-flavor-row .p-flavor-top{display:flex; justify-content:space-between; font-size:14px; margin-bottom:7px;}
+  .p-flavor-row .p-flavor-top span:last-child{color:var(--muted);}
+  .p-flavor-track{height:9px; border-radius:999px; background:#1d1929; overflow:hidden;}
+  .p-flavor-fill{height:100%; border-radius:999px;}
+  .p-orders-header{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:16px;}
+  .p-orders-filters{display:flex; gap:10px; flex-wrap:wrap;}
+  #p-searchInput, #p-statusFilter{
+    background:#1d1929; border:1px solid rgba(255,255,255,0.08); color:var(--text);
+    padding:10px 14px; border-radius:9px; font-size:14px; font-family:inherit;
+  }
+  #p-searchInput{width:230px;}
+  #p-searchInput:focus, #p-statusFilter:focus{outline:2px solid var(--magenta); outline-offset:1px;}
+  .p-table-scroll{overflow-x:auto; border:1px solid rgba(255,255,255,0.08); border-radius:14px;}
+  .p-table-scroll table{width:100%; border-collapse:collapse; min-width:720px;}
+  .p-table-scroll thead{background:#1d1929;}
+  .p-table-scroll th{text-align:left; font-size:12.5px; color:var(--muted); font-weight:600; padding:13px 18px; white-space:nowrap;}
+  .p-table-scroll td{padding:14px 18px; font-size:14px; border-top:1px solid rgba(255,255,255,0.08); white-space:nowrap;}
+  .p-table-scroll tbody tr{cursor:pointer; transition:background .15s ease;}
+  .p-table-scroll tbody tr:hover{background:#1d1929;}
+  .p-cliente-cell{font-weight:600;}
+  .p-status-pill{display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px; font-size:12.5px; font-weight:600;}
+  .p-status-pill::before{content:''; width:6px; height:6px; border-radius:50%;}
+  .p-status-pendiente{background:rgba(255,210,63,0.14); color:var(--yellow);} .p-status-pendiente::before{background:var(--yellow);}
+  .p-status-enviado{background:rgba(69,196,255,0.14); color:#45c4ff;} .p-status-enviado::before{background:#45c4ff;}
+  .p-status-entregado{background:rgba(61,220,151,0.14); color:#3ddc97;} .p-status-entregado::before{background:#3ddc97;}
+  .p-status-cancelado{background:rgba(255,92,108,0.14); color:#ff5c6c;} .p-status-cancelado::before{background:#ff5c6c;}
+  .p-empty-row td{text-align:center; color:var(--muted); padding:36px 18px;}
+  .p-results-count{color:var(--muted); font-size:13px; margin-top:12px;}
+  #p-overlay{position:fixed; inset:0; background:rgba(10,8,16,0.6); backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:940;}
+  #p-overlay.open{opacity:1; pointer-events:auto;}
+  #p-drawer{
+    position:fixed; top:0; right:0; height:100%; width:380px; max-width:92vw; background:#17141f;
+    border-left:1px solid rgba(255,255,255,0.08); z-index:941; transform:translateX(100%); transition:transform .3s ease;
+    padding:28px; overflow-y:auto;
+  }
+  #p-drawer.open{transform:translateX(0);}
+  .p-drawer-close{background:#1d1929; border:1px solid rgba(255,255,255,0.08); color:var(--text); width:34px; height:34px; border-radius:50%; font-size:16px; margin-bottom:20px;}
+  #p-drawer h3{font-size:20px; margin-bottom:4px;}
+  .p-drawer-id{color:var(--muted); font-size:13.5px; margin-bottom:20px;}
+  .p-drawer-row{display:flex; justify-content:space-between; padding:12px 0; border-top:1px solid rgba(255,255,255,0.08); font-size:14px;}
+  .p-drawer-row span:first-child{color:var(--muted);}
+  .p-drawer-total{font-family:'Anton'; font-size:26px; margin-top:18px;}
+  @media (prefers-reduced-motion: reduce){ .p-login-card.shake{animation:none !important;} }
+</style>
+</head>
+<body>
+
+<div id="storefrontView">
+
+<header id="siteHeader">
+  <div class="wrap">
+    <nav>
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="var(--yellow)" stroke="var(--magenta)" stroke-width="0.5"/></svg>
+        CHISPA
+      </div>
+      <div class="nav-links">
+        <a href="#beneficios">Beneficios</a>
+        <a href="#sabores">Sabores</a>
+        <a href="#opiniones">Opiniones</a>
+        <a href="#planes">Planes</a>
+        <a href="#faq">Dudas</a>
+      </div>
+      <a href="#pedido" class="nav-cta">Comprar ahora</a>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#beneficios">Beneficios</a>
+    <a href="#sabores">Sabores</a>
+    <a href="#opiniones">Opiniones</a>
+    <a href="#planes">Planes</a>
+    <a href="#faq">Dudas</a>
+    <a href="#pedido" class="nav-cta">Comprar ahora</a>
+  </div>
+</header>
+
+<section class="hero">
+  <canvas id="spark-canvas"></canvas>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow-pill"><span class="dot"></span> Oferta de lanzamiento — 20% OFF</div>
+      <h1 class="display">Tu día necesita <span class="word-chispa">CHISPA</span></h1>
+      <p class="sub">Cafeína natural, taurina y vitaminas B en una lata que sí sabe bien. Energía real, sin el bajón después.</p>
+      <div class="hero-ctas">
+        <a href="#pedido" class="btn-primary">Consigue tu pack ahora</a>
+        <a href="#sabores" class="btn-ghost">Ver sabores</a>
+      </div>
+      <div class="hero-trust">
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Envío gratis desde $499</div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> +50,000 clientes activos</div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Garantía de satisfacción</div>
+      </div>
+    </div>
+    <div class="can-stage">
+      <div class="can-glow"></div>
+      <div class="can">
+        <div class="can-top"></div>
+        <div class="can-body">
+          <div class="can-band">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="#1a0e33"/></svg>
+          </div>
+          <div class="can-label">CHISPA · 355ML</div>
+        </div>
+        <div class="can-bottom"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker-outer">
+  <div class="ticker-track" id="tickerTrack">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<section class="benefits" id="beneficios">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">POR QUÉ CHISPA</span>
+      <h2 class="display">Hecha para rendir, no para el bajón</h2>
+      <p>Cuatro cosas que nos importan más que cualquier otra: que funcione, que sepa rico, que no te arruine la tarde y que sepas exactamente qué estás tomando.</p>
+    </div>
+    <div class="benefit-grid">
+      <div class="benefit-card reveal">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+        <h3>Energía que se siente</h3>
+        <p>160mg de cafeína natural de guaraná y té verde. Enfoque en minutos, sin nervios.</p>
+      </div>
+      <div class="benefit-card reveal">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+        <h3>Cero crash</h3>
+        <p>Liberación equilibrada con taurina y B6/B12. Subes rápido y bajas suave, no de golpe.</p>
+      </div>
+      <div class="benefit-card reveal">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg></div>
+        <h3>Sabor de verdad</h3>
+        <p>Nada de sabor "a medicina". Cuatro recetas frutales que la gente termina hasta la última gota.</p>
+      </div>
+      <div class="benefit-card reveal">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2"><path d="M12 2L4 7v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V7l-8-5z"/></svg></div>
+        <h3>Ingredientes claros</h3>
+        <p>0g de azúcar, sin colorantes artificiales. Todo lo que lleva la lata, en la etiqueta.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div><div class="stat-num" data-target="500" data-suffix="K+">0</div><div class="stat-label">latas vendidas</div></div>
+      <div><div class="stat-num" data-target="160" data-suffix="mg">0</div><div class="stat-label">cafeína natural</div></div>
+      <div><div class="stat-num" data-target="0" data-suffix="g">0</div><div class="stat-label">azúcar</div></div>
+      <div><div class="stat-num" data-target="4" data-suffix=""></div><div class="stat-label">sabores</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="sabores">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">LA LÍNEA</span>
+      <h2 class="display">Cuatro sabores, un mismo voltaje</h2>
+      <p>Cada receta está pensada para que quieras la siguiente lata. Elige tu favorito o llévate el pack mixto.</p>
+    </div>
+    <div class="flavor-grid">
+      <div class="flavor-card f1 reveal">
+        <div class="flavor-can">
+          <div class="flavor-can-glow"></div>
+          <div class="fc-body">
+            <div class="fc-top"></div>
+            <div class="fc-band"></div>
+            <div class="fc-bottom"></div>
+          </div>
+        </div>
+        <div class="puck">🥭</div>
+        <h4>Mango Eléctrico</h4>
+        <span>Dulce, tropical, directo</span>
+      </div>
+      <div class="flavor-card f2 reveal">
+        <div class="flavor-can">
+          <div class="flavor-can-glow"></div>
+          <div class="fc-body">
+            <div class="fc-top"></div>
+            <div class="fc-band"></div>
+            <div class="fc-bottom"></div>
+          </div>
+        </div>
+        <div class="puck">🍓</div>
+        <h4>Frambuesa Voltaje</h4>
+        <span>Ácido justo, muy fresco</span>
+      </div>
+      <div class="flavor-card f3 reveal">
+        <div class="flavor-can">
+          <div class="flavor-can-glow"></div>
+          <div class="fc-body">
+            <div class="fc-top"></div>
+            <div class="fc-band"></div>
+            <div class="fc-bottom"></div>
+          </div>
+        </div>
+        <div class="puck">🍋</div>
+        <h4>Limón Chispa</h4>
+        <span>Cítrico, ligero, clásico</span>
+      </div>
+      <div class="flavor-card f4 reveal">
+        <div class="flavor-can">
+          <div class="flavor-can-glow"></div>
+          <div class="fc-body">
+            <div class="fc-top"></div>
+            <div class="fc-band"></div>
+            <div class="fc-bottom"></div>
+          </div>
+        </div>
+        <div class="puck">🍉</div>
+        <h4>Sandía Rayo</h4>
+        <span>El favorito del verano</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="energy">
+  <div class="wrap energy-inner">
+    <div class="reveal">
+      <span class="kicker">CÓMO ACTÚA</span>
+      <h2 class="display">De cero a encendido en 15 minutos</h2>
+      <p style="color:var(--muted); margin-top:16px; font-size:16px; line-height:1.6;">La cafeína entra rápido, la taurina y las vitaminas B sostienen el enfoque durante horas. Así se ve comparado con una bebida energética típica.</p>
+      <div class="meter" id="meterBox">
+        <div class="meter-row">
+          <div class="label"><span>Energía — CHISPA</span><span>92%</span></div>
+          <div class="meter-track"><div class="meter-fill" data-width="92"></div></div>
+        </div>
+        <div class="meter-row">
+          <div class="label"><span>Foco sostenido — CHISPA</span><span>88%</span></div>
+          <div class="meter-track"><div class="meter-fill" data-width="88"></div></div>
+        </div>
+        <div class="meter-row">
+          <div class="label"><span>Energía — bebida típica</span><span>55%</span></div>
+          <div class="meter-track"><div class="meter-fill" data-width="55"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="can-stage" style="height:400px;">
+        <div class="can-glow energy-glow" style="width:260px; height:260px;"></div>
+        <svg class="energy-can" viewBox="0 0 24 24" width="140" height="140" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="var(--yellow)" stroke="var(--magenta)" stroke-width="0.4"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="opiniones">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">LO QUE DICEN</span>
+      <h2 class="display">Gente real, mañanas reales</h2>
+      <p>Más de 500,000 latas vendidas y esto es lo que nos cuentan. Desliza para ver más opiniones.</p>
+    </div>
+    <div class="testimonial-scroll-wrap">
+      <div class="testimonial-arrows">
+        <button class="arrow-btn" id="arrowLeft" aria-label="Ver reseñas anteriores">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="arrow-btn" id="arrowRight" aria-label="Ver más reseñas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+      <div class="testimonial-scroll" id="testimonialScroll">
+        <div class="testimonial reveal">
+          <div class="stars">★★★★★</div>
+          <p>La probé por probar y ahora es lo único que tomo antes de entrenar. Sabe a fruta de verdad, no a jarabe.</p>
+          <div class="who">
+            <div class="avatar" style="background:var(--yellow);">DR</div>
+            <div><div class="who-name">Daniela R.</div><div class="who-role">Entrenadora · Sandía Rayo</div></div>
+          </div>
+        </div>
+        <div class="testimonial reveal">
+          <div class="stars">★★★★★</div>
+          <p>Trabajo turnos de noche y esta es la primera bebida energética que no me deja temblando ni con taquicardia.</p>
+          <div class="who">
+            <div class="avatar" style="background:#ff2e63;">MT</div>
+            <div><div class="who-name">Miguel T.</div><div class="who-role">Enfermero · Limón Chispa</div></div>
+          </div>
+        </div>
+        <div class="testimonial reveal">
+          <div class="stars">★★★★★</div>
+          <p>Pedí el pack mixto para probar los cuatro y terminé recomprando Mango Eléctrico cada semana.</p>
+          <div class="who">
+            <div class="avatar" style="background:#3fffd2; color:#0e2620;">CA</div>
+            <div><div class="who-name">Camila A.</div><div class="who-role">Diseñadora · Mango Eléctrico</div></div>
+          </div>
+        </div>
+        <div class="testimonial reveal">
+          <div class="stars">★★★★★</div>
+          <p>Entre trabajo y la maestría casi no duermo. Una lata en la tarde y llego despierta a la clase de las 8pm.</p>
+          <div class="who">
+            <div class="avatar" style="background:#ff8a3f; color:#2a1300;">VJ</div>
+            <div><div class="who-name">Valeria J.</div><div class="who-role">Estudiante de posgrado · Frambuesa Voltaje</div></div>
+          </div>
+        </div>
+        <div class="testimonial reveal">
+          <div class="stars">★★★★☆</div>
+          <p>Buen sabor y sí rinde en el gimnasio, aunque a mí me gustaría que vinieran en lata más grande.</p>
+          <div class="who">
+            <div class="avatar" style="background:#ffd23f; color:#1a0e33;">RM</div>
+            <div><div class="who-name">Ricardo M.</div><div class="who-role">Operador de maquinaria · Sandía Rayo</div></div>
+          </div>
+        </div>
+        <div class="testimonial reveal">
+          <div class="stars">★★★★★</div>
+          <p>Manejo largas distancias por trabajo y con esta bebida realmente noto la diferencia en las últimas horas del camino.</p>
+          <div class="who">
+            <div class="avatar" style="background:#3fffd2; color:#0e2620;">AL</div>
+            <div><div class="who-name">Andrés L.</div><div class="who-role">Transportista · Limón Chispa</div></div>
+          </div>
+        </div>
+        <div class="testimonial reveal">
+          <div class="stars">★★★★★</div>
+          <p>Soy mamá de dos y trabajo desde casa. Chispa es lo que me hace llegar entera al final del día sin depender de tres cafés.</p>
+          <div class="who">
+            <div class="avatar" style="background:#ff2e63;">FG</div>
+            <div><div class="who-name">Fernanda G.</div><div class="who-role">Mamá y freelancer · Mango Eléctrico</div></div>
+          </div>
+        </div>
+        <div class="testimonial reveal">
+          <div class="stars">★★★★★</div>
+          <p>Jugamos torneos que duran hasta la madrugada y esta es la única energética que no me deja con dolor de cabeza al día siguiente.</p>
+          <div class="who">
+            <div class="avatar" style="background:#ff8a3f; color:#2a1300;">KS</div>
+            <div><div class="who-name">Kevin S.</div><div class="who-role">Streamer · Sandía Rayo</div></div>
+          </div>
+        </div>
+        <div class="testimonial reveal">
+          <div class="stars">★★★★★</div>
+          <p>Empecé a llevarla a mis rodadas largas en bici. Ligera, no empalaga y realmente se siente el empujón en las subidas.</p>
+          <div class="who">
+            <div class="avatar" style="background:#ffd23f; color:#1a0e33;">DH</div>
+            <div><div class="who-name">Diego H.</div><div class="who-role">Ciclista de ruta · Frambuesa Voltaje</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="planes">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">ELIGE TU PLAN</span>
+      <h2 class="display">¿Cómo quieres probar CHISPA?</h2>
+      <p>Todos los planes incluyen los 4 sabores disponibles y garantía de devolución de 30 días.</p>
+    </div>
+    <div class="plan-grid">
+      <label class="plan-card reveal">
+        <input type="radio" name="plan" value="individual">
+        <span class="plan-select-badge">✓</span>
+        <div class="plan-top">
+          <h3>Prueba individual</h3>
+          <p class="plan-desc">Una lata para conocer tu sabor favorito.</p>
+        </div>
+        <div class="plan-price">$35 <span>lata única</span></div>
+        <ul class="plan-features">
+          <li>Elige entre 4 sabores</li>
+          <li>Sin compromiso</li>
+          <li>Envío estándar</li>
+        </ul>
+        <a href="#pedido-individual" class="plan-choose-btn">Elegir este plan</a>
+      </label>
+
+      <label class="plan-card popular reveal">
+        <span class="plan-badge">Más elegido</span>
+        <input type="radio" name="plan" value="pack12" checked>
+        <span class="plan-select-badge">✓</span>
+        <div class="plan-top">
+          <h3>Pack de 12</h3>
+          <p class="plan-desc">Ideal para tener siempre una a la mano.</p>
+        </div>
+        <div class="plan-price">$349 <span>ahorras 17%</span></div>
+        <ul class="plan-features">
+          <li>Mezcla los 4 sabores como quieras</li>
+          <li>Envío gratis</li>
+          <li>Compra única, sin suscripción</li>
+        </ul>
+        <a href="#pedido-pack12" class="plan-choose-btn">Elegir este plan</a>
+      </label>
+
+      <label class="plan-card reveal">
+        <input type="radio" name="plan" value="suscripcion">
+        <span class="plan-select-badge">✓</span>
+        <div class="plan-top">
+          <h3>Suscripción mensual</h3>
+          <p class="plan-desc">24 latas cada mes, para quien ya no puede vivir sin su chispa.</p>
+        </div>
+        <div class="plan-price">$599 <span>ahorras 25%</span></div>
+        <ul class="plan-features">
+          <li>Envío gratis siempre</li>
+          <li>Cancela cuando quieras</li>
+          <li>Precio congelado de por vida</li>
+        </ul>
+        <a href="#pedido-suscripcion" class="plan-choose-btn">Elegir este plan</a>
+      </label>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">DUDAS FRECUENTES</span>
+      <h2 class="display">Antes de que preguntes</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-q">
+          <span>¿Cuánta cafeína tiene cada lata?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>160mg de cafeína natural de guaraná y té verde, similar a una taza de café grande, combinada con taurina y vitaminas B para que el efecto se sienta más parejo y dure más.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">
+          <span>¿Es segura para tomar todos los días?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>Está pensada para adultos sanos, hasta una lata al día. No se recomienda para embarazadas, menores de edad ni personas sensibles a la cafeína. Ante cualquier duda, consulta a tu médico.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">
+          <span>¿Cuánto tarda en llegar mi pedido?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>De 24 a 48 horas hábiles en zonas urbanas, hasta 5 días en el resto del país. Recibes el número de rastreo apenas se despacha tu paquete.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">
+          <span>¿Puedo cancelar la suscripción cuando quiera?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>Sí. No hay penalización ni contrato forzoso: cancelas o pausas desde tu cuenta con al menos 3 días de anticipación al siguiente cobro.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">
+          <span>¿Y si no me gusta el sabor?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>Tienes 30 días desde tu compra para pedir la devolución de tu dinero, sin necesidad de justificarlo.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q">
+          <span>¿Tiene azúcar?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a"><p>0g de azúcar en los 4 sabores. Es apta para dietas bajas en carbohidratos y no lleva colorantes artificiales.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta" id="comprar">
+  <div class="wrap">
+    <h2 class="display reveal">Tu próxima lata está a un clic</h2>
+    <p class="sub reveal">Pide hoy y recibe tu pack en 24–48 horas. Cancela o pausa tu suscripción cuando quieras.</p>
+    <div class="offer-box reveal">
+      <span>🔥 20% OFF con el código CHISPA20 — termina en</span>
+      <span class="countdown" id="countdown">00:00:00</span>
+    </div>
+    <div class="cta-buttons reveal">
+      <a href="#pedido" class="btn-primary" id="goToCheckoutBtn">Continuar con tu pedido</a>
+      <a href="#sabores" class="btn-ghost">Ver sabores</a>
+    </div>
+    <p class="guarantee reveal">Garantía de devolución de 30 días. Si no te encendió, te regresamos tu dinero.</p>
+  </div>
+</section>
+
+<div class="sticky-bar" id="stickyBar">
+  <div class="wrap sticky-bar-inner">
+    <div class="sticky-bar-text">
+      <strong>20% OFF</strong> en tu primer pedido con CHISPA20
+    </div>
+    <a href="#pedido" class="btn-primary small">Comprar ahora</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="var(--yellow)" stroke="var(--magenta)" stroke-width="0.5"/></svg>
+        CHISPA
+      </div>
+      <div class="footer-links">
+        <a href="#beneficios">Beneficios</a>
+        <a href="#sabores">Sabores</a>
+        <a href="#opiniones">Opiniones</a>
+        <a href="#planes">Planes</a>
+        <a href="#faq">Dudas</a>
+      </div>
+    </div>
+    <p class="footer-note">CHISPA es una marca de bebida energética ficticia creada como ejemplo de diseño. Consumir con moderación; no recomendada para menores de edad, embarazadas ni personas sensibles a la cafeína.</p>
+    <a href="#panel" class="footer-admin-link" id="footerAdminLink">Acceso interno</a>
+  </div>
+</footer>
+
+</div><!-- /#storefrontView -->
+
+<script>
+  // Shared access to the artifact's db capability (only resolves inside a published view)
+  window.chispaDb = (async () => {
+    try {
+      if (!window.claude || typeof window.claude.use !== 'function') return null;
+      return await window.claude.use('db');
+    } catch (e) { return null; }
+  })();
+
+  // Header scroll state
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Mobile hamburger menu
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  if (hamburgerBtn && mobileMenu) {
+    hamburgerBtn.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
+      hamburgerBtn.classList.toggle('open', isOpen);
+      hamburgerBtn.setAttribute('aria-expanded', isOpen);
+    });
+    mobileMenu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        hamburgerBtn.classList.remove('open');
+        hamburgerBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  // Ticker content
+  const tickerItems = ['⚡ MANGO ELÉCTRICO','⚡ FRAMBUESA VOLTAJE','⚡ LIMÓN CHISPA','⚡ SANDÍA RAYO','⚡ 0G AZÚCAR','⚡ ENVÍO GRATIS DESDE $499'];
+  const track = document.getElementById('tickerTrack');
+  const doubled = [...tickerItems, ...tickerItems, ...tickerItems];
+  track.innerHTML = doubled.map(t => `<span>${t}</span>`).join('');
+
+  // Flavor cards: support tap on touch devices (hover doesn't exist there)
+  document.querySelectorAll('.flavor-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const wasActive = card.classList.contains('touch-active');
+      document.querySelectorAll('.flavor-card.touch-active').forEach(c => c.classList.remove('touch-active'));
+      if (!wasActive) card.classList.add('touch-active');
+    });
+  });
+
+  // Testimonial horizontal scroll: arrows + drag-to-scroll with mouse
+  const tScroll = document.getElementById('testimonialScroll');
+  const arrowLeft = document.getElementById('arrowLeft');
+  const arrowRight = document.getElementById('arrowRight');
+  if (tScroll) {
+    const scrollStep = () => (tScroll.querySelector('.testimonial')?.offsetWidth || 320) + 22;
+    arrowLeft.addEventListener('click', () => tScroll.scrollBy({ left: -scrollStep(), behavior: 'smooth' }));
+    arrowRight.addEventListener('click', () => tScroll.scrollBy({ left: scrollStep(), behavior: 'smooth' }));
+
+    let isDown = false, startX, scrollLeftStart;
+    tScroll.addEventListener('mousedown', (e) => {
+      isDown = true;
+      startX = e.pageX - tScroll.offsetLeft;
+      scrollLeftStart = tScroll.scrollLeft;
+    });
+    ['mouseleave', 'mouseup'].forEach(evt => tScroll.addEventListener(evt, () => { isDown = false; }));
+    tScroll.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - tScroll.offsetLeft;
+      tScroll.scrollLeft = scrollLeftStart - (x - startX) * 1.4;
+    });
+  }
+
+  // Plan cards: little bounce animation when a plan is selected
+  document.querySelectorAll('.plan-card input[name="plan"]').forEach(input => {
+    input.addEventListener('change', () => {
+      const card = input.closest('.plan-card');
+      document.querySelectorAll('.plan-card.just-picked').forEach(c => c.classList.remove('just-picked'));
+      void card.offsetWidth; // restart animation
+      card.classList.add('just-picked');
+    });
+  });
+
+  // "Continuar con tu pedido" carries whichever plan is selected on the storefront
+  const goToCheckoutBtn = document.getElementById('goToCheckoutBtn');
+  if (goToCheckoutBtn) {
+    goToCheckoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const checked = document.querySelector('input[name="plan"]:checked');
+      location.hash = '#pedido' + (checked ? '-' + checked.value : '');
+    });
+  }
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-q').addEventListener('click', () => {
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  // Countdown timer for the launch offer (resets to 6h if expired, persists per session)
+  const countdownEl = document.getElementById('countdown');
+  if (countdownEl) {
+    const key = 'chispaOfferDeadline';
+    let deadline = parseInt(sessionStorage.getItem(key), 10);
+    if (!deadline || deadline < Date.now()) {
+      deadline = Date.now() + 6 * 60 * 60 * 1000;
+      sessionStorage.setItem(key, deadline);
+    }
+    function updateCountdown() {
+      const diff = Math.max(0, deadline - Date.now());
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      countdownEl.textContent = [h, m, s].map(n => String(n).padStart(2, '0')).join(':');
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  }
+
+  // Sticky mobile buy bar: show after hero, hide once the buy section is in view
+  const stickyBar = document.getElementById('stickyBar');
+  const comprarSection = document.getElementById('comprar');
+  if (stickyBar) {
+    let inComprarView = false;
+    if (comprarSection) {
+      const comprarObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => { inComprarView = entry.isIntersecting; });
+      }, { threshold: 0.2 });
+      comprarObserver.observe(comprarSection);
+    }
+    window.addEventListener('scroll', () => {
+      const pastHero = window.scrollY > window.innerHeight * 0.9;
+      stickyBar.classList.toggle('show', pastHero && !inComprarView);
+    });
+  }
+
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => revealObserver.observe(el));
+
+  // Counter animation
+  const counters = document.querySelectorAll('.stat-num');
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseInt(el.dataset.target, 10);
+        const suffix = el.dataset.suffix || '';
+        const duration = 1200;
+        const start = performance.now();
+        function tick(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(eased * target) + suffix;
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        counterObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => counterObserver.observe(c));
+
+  // Energy meter fill
+  const meterBox = document.getElementById('meterBox');
+  const meterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('.meter-fill').forEach(f => {
+          f.style.width = f.dataset.width + '%';
+        });
+        meterObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  if (meterBox) meterObserver.observe(meterBox);
+
+  // Spark particle canvas in hero
+  const canvas = document.getElementById('spark-canvas');
+  const ctx = canvas.getContext('2d');
+  let w, h, particles;
+  function resize() {
+    w = canvas.width = canvas.offsetWidth;
+    h = canvas.height = canvas.offsetHeight;
+  }
+  function initParticles() {
+    particles = Array.from({ length: 46 }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 1.8 + 0.6,
+      vy: Math.random() * 0.3 + 0.08,
+      alpha: Math.random() * 0.6 + 0.2,
+      hue: Math.random() > 0.5 ? '255,210,63' : '255,46,99'
+    }));
+  }
+  function animateParticles() {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach(p => {
+      p.y -= p.vy;
+      if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.hue},${p.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(animateParticles);
+  }
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.addEventListener('resize', resize);
+  resize();
+  if (!reduceMotion) {
+    initParticles();
+    animateParticles();
+  }
+</script>
+
+<div id="panelView" style="display:none">
+  <div class="p-login" id="pLoginScreen">
+    <div class="p-login-card" id="pLoginCard">
+      <div class="p-login-logo">
+        <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="var(--yellow)" stroke="var(--magenta)" stroke-width="0.5"/></svg>
+        CHISPA
+      </div>
+      <p class="p-login-tag">Panel interno — acceso solo para personal autorizado.</p>
+      <label class="p-field-label" for="p-passwordInput">Contraseña</label>
+      <input type="password" id="p-passwordInput" placeholder="••••••••" autocomplete="off">
+      <p class="p-login-error" id="p-loginError"></p>
+      <button id="p-loginBtn">Entrar</button>
+      <p class="p-login-note">Este candado es solo una capa visual para esta demo. Los pedidos que ves aquí sí son reales — vienen del formulario de compra de la página principal — pero el acceso no reemplaza un inicio de sesión real por servidor.</p>
+    </div>
+  </div>
+
+  <div id="p-dashboard">
+    <div class="p-topbar">
+      <div class="p-topbar-brand">
+        <span class="p-wordmark">CHISPA</span>
+        <span class="p-divider"></span>
+        <span class="p-subtitle">Panel de ventas</span>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <a href="#" id="p-backBtn">Ver tienda</a>
+        <button id="p-logoutBtn">Cerrar sesión</button>
+      </div>
+    </div>
+    <div class="p-main">
+      <section class="p-kpi-row">
+        <div class="p-kpi-hero">
+          <div>
+            <div class="p-kpi-label">Ventas totales</div>
+            <div class="p-kpi-value" id="p-kpiVentas">$0</div>
+            <div class="p-kpi-sub" id="p-kpiVentasSub">—</div>
+          </div>
+          <div class="p-spark-wrap"><canvas id="p-heroSparkline"></canvas></div>
+        </div>
+        <div class="p-kpi-tile"><div class="p-kpi-label">Pedidos totales</div><div class="p-kpi-value" id="p-kpiPedidos">0</div></div>
+        <div class="p-kpi-tile"><div class="p-kpi-label">Ticket promedio</div><div class="p-kpi-value" id="p-kpiTicket">$0</div></div>
+        <div class="p-kpi-tile warn"><div class="p-kpi-label">Pendientes de envío</div><div class="p-kpi-value" id="p-kpiPendientes">0</div></div>
+      </section>
+
+      <section class="p-charts-row">
+        <div class="p-panel-box">
+          <div class="p-section-title">Ventas de los últimos 14 días</div>
+          <div class="p-panel-sub">Suma de pedidos por día, sin contar cancelaciones.</div>
+          <div class="p-chart-wrap"><canvas id="p-trendChart"></canvas></div>
+        </div>
+        <div class="p-panel-box">
+          <div class="p-section-title">Unidades por sabor</div>
+          <div class="p-panel-sub">Incluye latas sueltas y la parte proporcional de packs mixtos.</div>
+          <div class="p-flavor-bars" id="p-flavorBars"></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="p-orders-header">
+          <div class="p-section-title" style="margin-bottom:0;">Pedidos</div>
+          <div class="p-orders-filters">
+            <input type="text" id="p-searchInput" placeholder="Buscar cliente o número de pedido">
+            <select id="p-statusFilter">
+              <option value="todos">Todos los estados</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="Enviado">Enviado</option>
+              <option value="Entregado">Entregado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+        <div class="p-table-scroll">
+          <table>
+            <thead><tr><th>Pedido</th><th>Cliente</th><th>Producto</th><th>Total</th><th>Estado</th><th>Fecha</th></tr></thead>
+            <tbody id="p-ordersBody"></tbody>
+          </table>
+        </div>
+        <p class="p-results-count" id="p-resultsCount"></p>
+      </section>
+    </div>
+  </div>
+
+  <div id="p-overlay"></div>
+  <div id="p-drawer">
+    <button class="p-drawer-close" id="p-drawerClose">✕</button>
+    <div id="p-drawerContent"></div>
+  </div>
+</div>
+
+<div id="checkoutView" style="display:none">
+  <div class="co-wrap">
+    <a href="#" id="co-backLink" class="co-back">← Volver a la tienda</a>
+    <div class="co-card" id="co-card">
+      <div class="co-logo">
+        <svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="var(--yellow)" stroke="var(--magenta)" stroke-width="0.5"/></svg>
+        CHISPA
+      </div>
+      <h1 class="co-title display">Completa tu pedido</h1>
+      <p class="co-sub">Elige tu plan y déjanos tus datos para registrar el pedido.</p>
+
+      <div class="co-plans" id="co-plans">
+        <label class="co-plan-option">
+          <input type="radio" name="co-plan" value="individual">
+          <div class="co-plan-info"><strong>Prueba individual</strong><span>lata única</span></div>
+          <div class="co-plan-price">$35</div>
+        </label>
+        <label class="co-plan-option popular">
+          <input type="radio" name="co-plan" value="pack12" checked>
+          <div class="co-plan-info"><strong>Pack de 12</strong><span>ahorras 17%</span></div>
+          <div class="co-plan-price">$349</div>
+        </label>
+        <label class="co-plan-option">
+          <input type="radio" name="co-plan" value="suscripcion">
+          <div class="co-plan-info"><strong>Suscripción mensual</strong><span>ahorras 25%</span></div>
+          <div class="co-plan-price">$599</div>
+        </label>
+      </div>
+
+      <div class="co-fields">
+        <div class="co-fields-group-title">Datos de contacto</div>
+        <label class="co-field-label" for="co-name">Nombre completo</label>
+        <input type="text" id="co-name" placeholder="Tu nombre">
+        <label class="co-field-label" for="co-phone">Teléfono</label>
+        <input type="tel" id="co-phone" placeholder="10 dígitos">
+        <label class="co-field-label" for="co-email">Correo</label>
+        <input type="email" id="co-email" placeholder="tucorreo@gmail.com">
+        <p class="co-field-hint" id="co-email-hint"></p>
+
+        <div class="co-fields-group-title" style="margin-top:18px;">Dirección de envío</div>
+        <label class="co-field-label" for="co-street">Calle y número</label>
+        <input type="text" id="co-street" placeholder="Av. Siempre Viva 742">
+        <label class="co-field-label" for="co-colonia">Colonia / barrio</label>
+        <input type="text" id="co-colonia" placeholder="Centro">
+        <div class="co-fields-row">
+          <div>
+            <label class="co-field-label" for="co-city">Ciudad</label>
+            <input type="text" id="co-city" placeholder="Tijuana">
+          </div>
+          <div>
+            <label class="co-field-label" for="co-state">Estado</label>
+            <input type="text" id="co-state" placeholder="Baja California">
+          </div>
+        </div>
+        <label class="co-field-label" for="co-zip">Código postal</label>
+        <input type="text" id="co-zip" placeholder="22000" inputmode="numeric">
+      </div>
+      <button id="co-confirmBtn" class="btn-primary co-confirm-btn">Confirmar pedido — <span id="co-priceLabel">$349</span></button>
+      <p class="co-note">Esto crea tu pedido de verdad en nuestro sistema. No pedimos datos de tarjeta ni procesamos ningún cobro real: es una demostración, no hay pasarela de pago conectada.</p>
+      <p class="co-msg" id="co-msg"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- Panel: auth (client-side demo lock only) ----------
+  const P_PASSWORD = 'chispa2026';
+  let panelOrders = [];
+  let panelUnsub = null;
+  let panelInited = false;
+
+  function pShowDashboard(){
+    document.getElementById('pLoginScreen').style.display = 'none';
+    document.getElementById('p-dashboard').classList.add('visible');
+    panelSubscribe();
+  }
+  function pAttemptLogin(){
+    const input = document.getElementById('p-passwordInput');
+    const err = document.getElementById('p-loginError');
+    if (input.value === P_PASSWORD) {
+      try { sessionStorage.setItem('chispaAdminAuth', '1'); } catch(e) {}
+      pShowDashboard();
+    } else {
+      err.textContent = 'Contraseña incorrecta. Intenta de nuevo.';
+      const card = document.getElementById('pLoginCard');
+      card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+    }
+  }
+  document.getElementById('p-loginBtn').addEventListener('click', pAttemptLogin);
+  document.getElementById('p-passwordInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') pAttemptLogin(); });
+  document.getElementById('p-logoutBtn').addEventListener('click', () => {
+    try { sessionStorage.removeItem('chispaAdminAuth'); } catch(e) {}
+    document.getElementById('p-dashboard').classList.remove('visible');
+    document.getElementById('pLoginScreen').style.display = 'flex';
+    document.getElementById('p-passwordInput').value = '';
+  });
+  document.getElementById('p-backBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    location.hash = '';
+  });
+
+  // ---------- Panel: live orders from the shared db ----------
+  function panelSubscribe(){
+    if (panelInited) { panelRenderAll(); return; }
+    panelInited = true;
+    window.chispaDb.then(db => {
+      if (!db) {
+        document.getElementById('p-ordersBody').innerHTML =
+          '<tr class="p-empty-row"><td colspan="6">No hay conexión con la base de datos en esta vista previa.</td></tr>';
+        return;
+      }
+      panelUnsub = db.collection('orders').orderBy('fecha', 'desc').limit(500).onSnapshot(
+        (snap) => {
+          panelOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          panelRenderAll();
+        },
+        (err) => {
+          document.getElementById('p-ordersBody').innerHTML =
+            '<tr class="p-empty-row"><td colspan="6">No pudimos cargar los pedidos.</td></tr>';
+        }
+      );
+    });
+    // Keep the "last 14 days" window current even if no new order arrives for a while
+    setInterval(() => {
+      if (document.getElementById('p-dashboard').classList.contains('visible')) panelRenderAll();
+    }, 5 * 60 * 1000);
+  }
+
+  function pMoney(n){ return '$' + Number(n || 0).toLocaleString('es-MX'); }
+
+  function panelRenderAll(){
+    const valid = panelOrders.filter(o => o.estado !== 'Cancelado');
+    const ventasTotales = valid.reduce((s,o) => s + (o.total || 0), 0);
+    const pedidosTotales = panelOrders.length;
+    const ticketPromedio = valid.length ? Math.round(ventasTotales / valid.length) : 0;
+    const pendientes = panelOrders.filter(o => o.estado === 'Pendiente').length;
+
+    document.getElementById('p-kpiVentas').textContent = pMoney(ventasTotales);
+    document.getElementById('p-kpiVentasSub').textContent = pedidosTotales
+      ? `${valid.length} pedidos válidos de ${pedidosTotales} totales`
+      : 'Todavía no hay pedidos';
+    document.getElementById('p-kpiPedidos').textContent = pedidosTotales;
+    document.getElementById('p-kpiTicket').textContent = pMoney(ticketPromedio);
+    document.getElementById('p-kpiPendientes').textContent = pendientes;
+
+    panelRenderSparkline(valid);
+    panelRenderTrend(valid);
+    panelRenderFlavors(panelOrders);
+    panelRenderTable();
+  }
+
+  function panelDayKey(iso){
+    return (iso || '').slice(0, 10);
+  }
+  function panelDailyTotals(list, days){
+    const map = {};
+    list.forEach(o => { const k = panelDayKey(o.fecha); if (k) map[k] = (map[k] || 0) + (o.total || 0); });
+    const today = new Date();
+    const labels = [], values = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(today); d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0,10);
+      labels.push(`${d.getDate()}/${d.getMonth()+1}`);
+      values.push(map[key] || 0);
+    }
+    return { labels, values };
+  }
+
+  let pSparkChart, pTrendChart;
+  function panelRenderSparkline(valid){
+    const { values } = panelDailyTotals(valid, 14);
+    if (pSparkChart) pSparkChart.destroy();
+    pSparkChart = new Chart(document.getElementById('p-heroSparkline'), {
+      type:'line',
+      data:{ labels: values.map((_,i)=>i), datasets:[{ data:values, borderColor:'#ffd23f', borderWidth:2, tension:0.35, pointRadius:0, fill:true, backgroundColor:'rgba(255,210,63,0.12)' }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}}, scales:{x:{display:false}, y:{display:false}} }
+    });
+  }
+  function panelRenderTrend(valid){
+    const { labels, values } = panelDailyTotals(valid, 14);
+    if (pTrendChart) pTrendChart.destroy();
+    pTrendChart = new Chart(document.getElementById('p-trendChart'), {
+      type:'line',
+      data:{ labels, datasets:[{ label:'Ventas', data:values, borderColor:'#ff2e63', borderWidth:2.5, tension:0.3, pointRadius:3, pointBackgroundColor:'#ff2e63', fill:true, backgroundColor:'rgba(255,46,99,0.08)' }]},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:(ctx)=>pMoney(ctx.parsed.y)}}},
+        scales:{ x:{ticks:{color:'#948da8', font:{size:11}}, grid:{display:false}}, y:{ticks:{color:'#948da8', font:{size:11}, callback:(v)=>'$'+v}, grid:{color:'rgba(255,255,255,0.05)'}} }
+      }
+    });
+  }
+  function panelRenderFlavors(all){
+    const flavors = {'Mango Eléctrico':0,'Frambuesa Voltaje':0,'Limón Chispa':0,'Sandía Rayo':0};
+    const colors = {'Mango Eléctrico':'#ffd23f','Frambuesa Voltaje':'#ff2e63','Limón Chispa':'#3ddc97','Sandía Rayo':'#45c4ff'};
+    all.filter(o => o.estado !== 'Cancelado').forEach(o => {
+      if (!o.sabor || o.sabor === 'Mixto' || o.plan === 'Pack de 12' || o.plan === 'Suscripción mensual') {
+        const units = o.plan === 'Suscripción mensual' ? 24 : 12;
+        Object.keys(flavors).forEach(f => flavors[f] += units / 4);
+      } else if (flavors.hasOwnProperty(o.sabor)) {
+        flavors[o.sabor] += 1;
+      }
+    });
+    const max = Math.max(1, ...Object.values(flavors));
+    document.getElementById('p-flavorBars').innerHTML = Object.entries(flavors).map(([name, units]) => `
+      <div class="p-flavor-row">
+        <div class="p-flavor-top"><span>${name}</span><span>${Math.round(units)} u.</span></div>
+        <div class="p-flavor-track"><div class="p-flavor-fill" style="width:${(units/max*100).toFixed(0)}%; background:${colors[name]};"></div></div>
+      </div>`).join('');
+  }
+  function panelFormatDate(iso){
+    if (!iso) return '—';
+    const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const d = new Date(iso);
+    if (isNaN(d)) return '—';
+    return `${d.getDate()} ${meses[d.getMonth()]}`;
+  }
+  function panelRenderTable(){
+    const search = document.getElementById('p-searchInput').value.trim().toLowerCase();
+    const status = document.getElementById('p-statusFilter').value;
+    const filtered = panelOrders
+      .filter(o => status === 'todos' || o.estado === status)
+      .filter(o => !search || (o.cliente||'').toLowerCase().includes(search) || (o.codigo||'').toLowerCase().includes(search));
+
+    const body = document.getElementById('p-ordersBody');
+    if (!filtered.length) {
+      body.innerHTML = '<tr class="p-empty-row"><td colspan="6">No encontramos pedidos con estos filtros.</td></tr>';
+    } else {
+      body.innerHTML = filtered.map(o => `
+        <tr data-id="${o.id}">
+          <td>${o.codigo || o.id}</td>
+          <td class="p-cliente-cell">${o.cliente || '—'}</td>
+          <td>${o.plan || '—'}${o.sabor && o.sabor !== 'Mixto' ? ' · ' + o.sabor : ''}</td>
+          <td>${pMoney(o.total)}</td>
+          <td><span class="p-status-pill p-status-${(o.estado||'').toLowerCase()}">${o.estado || '—'}</span></td>
+          <td>${panelFormatDate(o.fecha)}</td>
+        </tr>`).join('');
+    }
+    document.getElementById('p-resultsCount').textContent = `${filtered.length} de ${panelOrders.length} pedidos`;
+    body.querySelectorAll('tr[data-id]').forEach(row => {
+      row.addEventListener('click', () => panelOpenDrawer(row.dataset.id));
+    });
+  }
+  document.getElementById('p-searchInput').addEventListener('input', panelRenderTable);
+  document.getElementById('p-statusFilter').addEventListener('change', panelRenderTable);
+
+  const pOverlay = document.getElementById('p-overlay');
+  const pDrawer = document.getElementById('p-drawer');
+  function panelOpenDrawer(id){
+    const o = panelOrders.find(x => x.id === id);
+    if (!o) return;
+    const dir = o.direccion;
+    const dirLine = dir ? `${dir.calle || ''}, ${dir.colonia || ''}, ${dir.ciudad || ''}, ${dir.estado || ''} ${dir.cp || ''}` : '—';
+    document.getElementById('p-drawerContent').innerHTML = `
+      <h3>${o.cliente || '—'}</h3>
+      <p class="p-drawer-id">${o.codigo || o.id}</p>
+      <div class="p-drawer-row"><span>Producto</span><span>${o.plan || '—'}</span></div>
+      <div class="p-drawer-row"><span>Sabor</span><span>${o.sabor || 'Mixto'}</span></div>
+      <div class="p-drawer-row"><span>Teléfono</span><span>${o.telefono || '—'}</span></div>
+      <div class="p-drawer-row"><span>Correo</span><span>${o.correo || '—'}</span></div>
+      <div class="p-drawer-row"><span>Dirección</span><span style="text-align:right; max-width:220px;">${dirLine}</span></div>
+      <div class="p-drawer-row"><span>Estado</span><span class="p-status-pill p-status-${(o.estado||'').toLowerCase()}">${o.estado || '—'}</span></div>
+      <div class="p-drawer-row"><span>Fecha</span><span>${panelFormatDate(o.fecha)}</span></div>
+      <div class="p-drawer-total">${pMoney(o.total)}</div>`;
+    pOverlay.classList.add('open');
+    pDrawer.classList.add('open');
+  }
+  pOverlay.addEventListener('click', () => { pOverlay.classList.remove('open'); pDrawer.classList.remove('open'); });
+  document.getElementById('p-drawerClose').addEventListener('click', () => { pOverlay.classList.remove('open'); pDrawer.classList.remove('open'); });
+
+  try { if (sessionStorage.getItem('chispaAdminAuth') === '1') { /* will auto-open once panel view is shown */ } } catch(e) {}
+
+  // ---------- Checkout page (separate view) ----------
+  const coPlanPriceMap = {
+    individual: { price: 35, name: 'Prueba individual' },
+    pack12: { price: 349, name: 'Pack de 12' },
+    suscripcion: { price: 599, name: 'Suscripción mensual' }
+  };
+  function coSyncPrice(){
+    const checked = document.querySelector('input[name="co-plan"]:checked');
+    const info = checked ? coPlanPriceMap[checked.value] : coPlanPriceMap.pack12;
+    document.getElementById('co-priceLabel').textContent = '$' + info.price;
+  }
+  document.querySelectorAll('input[name="co-plan"]').forEach(input => {
+    input.addEventListener('change', coSyncPrice);
+  });
+
+  document.getElementById('co-backLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    location.hash = '';
+  });
+
+  // ---------- Email typo detection (focused on common Gmail misspellings) ----------
+  function levenshtein(a, b){
+    const m = a.length, n = b.length;
+    const d = Array.from({length: m + 1}, (_, i) => [i, ...new Array(n).fill(0)]);
+    for (let j = 0; j <= n; j++) d[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        d[i][j] = a[i-1] === b[j-1] ? d[i-1][j-1] : 1 + Math.min(d[i-1][j], d[i][j-1], d[i-1][j-1]);
+      }
+    }
+    return d[m][n];
+  }
+  const KNOWN_DOMAIN_TYPOS = {
+    'gmial.com':'gmail.com','gmai.com':'gmail.com','gmal.com':'gmail.com','gmailcom':'gmail.com',
+    'gmail.co':'gmail.com','gmail.cm':'gmail.com','gmail.con':'gmail.com','gmail.comm':'gmail.com',
+    'gnail.com':'gmail.com','gmil.com':'gmail.com','gmaill.com':'gmail.com','gamil.com':'gmail.com',
+    'gmaik.com':'gmail.com','gmsil.com':'gmail.com','gmail.om':'gmail.com','gmailc.om':'gmail.com',
+    'hotmial.com':'hotmail.com','hotmal.com':'hotmail.com','hotmai.com':'hotmail.com','hotmil.com':'hotmail.com',
+    'yaho.com':'yahoo.com','yahooo.com':'yahoo.com','yhoo.com':'yahoo.com',
+    'outlok.com':'outlook.com','outllok.com':'outlook.com'
+  };
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function checkEmail(email){
+    // returns { valid, suggestion } — suggestion is a full corrected address, or null
+    if (!EMAIL_RE.test(email)) return { valid: false, suggestion: null };
+    const [local, domain] = email.split('@');
+    const domainLower = domain.toLowerCase();
+    if (KNOWN_DOMAIN_TYPOS[domainLower]) {
+      return { valid: true, suggestion: local + '@' + KNOWN_DOMAIN_TYPOS[domainLower] };
+    }
+    for (const known of ['gmail.com','hotmail.com','yahoo.com','outlook.com']) {
+      if (domainLower !== known && levenshtein(domainLower, known) <= 2 && domainLower.length >= 6) {
+        return { valid: true, suggestion: local + '@' + known };
+      }
+    }
+    return { valid: true, suggestion: null };
+  }
+  const emailInputEl = document.getElementById('co-email');
+  const emailHintEl = document.getElementById('co-email-hint');
+  function renderEmailHint(){
+    const val = emailInputEl.value.trim();
+    emailHintEl.innerHTML = '';
+    if (!val) return;
+    const result = checkEmail(val);
+    if (result.suggestion) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = `¿Quisiste decir ${result.suggestion}?`;
+      btn.addEventListener('click', () => { emailInputEl.value = result.suggestion; renderEmailHint(); });
+      emailHintEl.appendChild(btn);
+    }
+  }
+  emailInputEl.addEventListener('input', renderEmailHint);
+  emailInputEl.addEventListener('blur', renderEmailHint);
+
+  document.getElementById('co-confirmBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('co-confirmBtn');
+    const msg = document.getElementById('co-msg');
+    const fields = {
+      name: document.getElementById('co-name'),
+      phone: document.getElementById('co-phone'),
+      email: document.getElementById('co-email'),
+      street: document.getElementById('co-street'),
+      colonia: document.getElementById('co-colonia'),
+      city: document.getElementById('co-city'),
+      state: document.getElementById('co-state'),
+      zip: document.getElementById('co-zip'),
+    };
+    const val = (f) => fields[f].value.trim();
+
+    function fail(text, field){
+      msg.textContent = text;
+      msg.className = 'co-msg error';
+      fields[field].focus();
+    }
+
+    if (!val('name')) return fail('Escribe tu nombre para continuar.', 'name');
+    const phoneDigits = val('phone').replace(/\D/g, '');
+    if (phoneDigits.length < 10) return fail('Escribe un teléfono válido (10 dígitos).', 'phone');
+    const email = val('email');
+    if (!email) return fail('Escribe tu correo para continuar.', 'email');
+    const emailCheck = checkEmail(email);
+    if (!emailCheck.valid) return fail('Ese correo no parece válido. Revísalo.', 'email');
+    if (emailCheck.suggestion) return fail(`Revisa tu correo — ¿quisiste decir ${emailCheck.suggestion}?`, 'email');
+    if (!val('street')) return fail('Escribe tu calle y número.', 'street');
+    if (!val('colonia')) return fail('Escribe tu colonia o barrio.', 'colonia');
+    if (!val('city')) return fail('Escribe tu ciudad.', 'city');
+    if (!val('state')) return fail('Escribe tu estado.', 'state');
+    const zipDigits = val('zip').replace(/\D/g, '');
+    if (zipDigits.length < 4 || zipDigits.length > 6) return fail('Escribe un código postal válido.', 'zip');
+
+    const checked = document.querySelector('input[name="co-plan"]:checked');
+    const planKey = checked ? checked.value : 'pack12';
+    const planInfo = coPlanPriceMap[planKey] || coPlanPriceMap.pack12;
+
+    btn.disabled = true;
+    const originalLabel = btn.innerHTML;
+    btn.textContent = 'Confirmando...';
+    msg.textContent = '';
+    msg.className = 'co-msg';
+
+    const orderCode = 'CH-' + Math.floor(1000 + Math.random() * 9000);
+    const orderData = {
+      codigo: orderCode,
+      cliente: val('name'),
+      telefono: val('phone'),
+      correo: email,
+      direccion: {
+        calle: val('street'),
+        colonia: val('colonia'),
+        ciudad: val('city'),
+        estado: val('state'),
+        cp: val('zip'),
+      },
+      plan: planInfo.name,
+      total: planInfo.price,
+      estado: 'Pendiente',
+      fecha: new Date().toISOString(),
+    };
+
+    const db = await window.chispaDb;
+    if (db) {
+      try {
+        await db.collection('orders').add(orderData);
+        document.getElementById('co-card').innerHTML = `
+          <div class="co-success">
+            <div class="co-check">✓</div>
+            <h2>¡Pedido confirmado!</h2>
+            <p>Gracias, ${val('name')}. Te avisaremos por correo cuando tu pedido salga a reparto.</p>
+            <div class="co-code">${orderCode}</div>
+            <a href="#" id="co-doneLink" class="btn-primary" style="display:inline-block;">Volver a la tienda</a>
+          </div>`;
+        document.getElementById('co-doneLink').addEventListener('click', (e) => { e.preventDefault(); location.hash = ''; });
+      } catch (e) {
+        msg.textContent = 'No pudimos registrar tu pedido. Intenta de nuevo.';
+        msg.className = 'co-msg error';
+        btn.disabled = false;
+        btn.innerHTML = originalLabel;
+      }
+    } else {
+      msg.textContent = 'Esta vista previa no tiene conexión con la base de datos. Publica la página para activar las compras reales.';
+      msg.className = 'co-msg error';
+      btn.disabled = false;
+      btn.innerHTML = originalLabel;
+    }
+  });
+
+  // ---------- Router: storefront / checkout / internal panel ----------
+  function applyRoute(){
+    const hash = location.hash;
+    const isPanel = hash === '#panel';
+    const isCheckout = hash === '#pedido' || hash.indexOf('#pedido-') === 0;
+    document.getElementById('storefrontView').style.display = (isPanel || isCheckout) ? 'none' : '';
+    document.getElementById('panelView').style.display = isPanel ? 'block' : 'none';
+    document.getElementById('checkoutView').style.display = isCheckout ? 'block' : 'none';
+    window.scrollTo(0, 0);
+    if (isPanel) {
+      let alreadyIn = false;
+      try { alreadyIn = sessionStorage.getItem('chispaAdminAuth') === '1'; } catch(e) {}
+      if (alreadyIn) { pShowDashboard(); }
+    }
+    if (isCheckout) {
+      const planFromHash = hash.indexOf('#pedido-') === 0 ? hash.slice(8) : null;
+      const target = planFromHash && coPlanPriceMap[planFromHash] ? planFromHash : null;
+      if (target) {
+        const radio = document.querySelector(`input[name="co-plan"][value="${target}"]`);
+        if (radio) radio.checked = true;
+      }
+      coSyncPrice();
+    }
+  }
+  window.addEventListener('hashchange', applyRoute);
+  applyRoute();
+</script>
+
+</body>
+</html>
